@@ -73,14 +73,17 @@ def main():
 
     # aiomqtt has moved from https://github.com/sbtinstruments/aiomqtt and https://sbtinstruments.github.io/aiomqtt/
     # aiomqtt is now at https://github.com/empicano/aiomqtt and https://aiomqtt.bo3hm.com/
-    # Setting the event loop on "winderps machiens"
-    # FIXME: Pretty sure this isn't needed anymore:
-    #if sys.platform.lower() == "win32" or os.name.lower() == "nt":
-    #    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    # aiomqtt must be version 2.5.1 or below.  The version 3 implementation brings in Rust,
+    #    and there's no place for Rust in a pure python project...  even if it's "faster".
+    # Setting the selector event loop on "winderps machiens", which is required by aiomqtt (paho edition):
+    loop_factory = None
+    if sys.platform.lower() == "win32" or os.name.lower() == "nt":
+        import selectors
+        loop_factory = lambda: asyncio.SelectorEventLoop(selectors.SelectSelector())
 
     # NOTE: Moved contents to an async wrapper coroutine to better follow the "high-level" pattern.  This pattern uses
     #       asyncio.run(coro), which handles much, if not all, of the cleanup and interrupts.
-    asyncio.run(wrapper(args))
+    asyncio.run(wrapper(args), loop_factory = loop_factory)
 
 if __name__ == "__main__":
     main()
