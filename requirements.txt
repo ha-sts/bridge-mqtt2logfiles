@@ -1,3 +1,4 @@
-aiomqtt
+aiofiles
+aiomqtt==2.5.1
 pylint
 radon
