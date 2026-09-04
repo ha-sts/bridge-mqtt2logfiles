@@ -22,6 +22,7 @@ class MessageLogFile:
         await self.queue.put(str(message))
 
     async def flush(self):
+        # FIXME: Handle exceptions from file handling here
         self.logger.debug("flush")
         async with aiofiles.open(self.message_file_path, 'a') as message_file:
             while not self.queue.empty():

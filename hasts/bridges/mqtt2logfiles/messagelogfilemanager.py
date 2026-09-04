@@ -23,9 +23,7 @@ class MessageLogFileManager:
 
     def _open_file(self):
         self.logger.debug("_open_file")
-        dt = datetime.datetime.now(datetime.timezone.utc)
-        dt = dt - datetime.timedelta(microseconds = dt.microsecond)
-        dt_str = dt.isoformat()
+        dt_str = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d_%H-%M-%S')
         file_path = pathlib.Path(self.message_directory_path, "mqtt_messages_{}.json.log".format(dt_str))
         self.logger.debug("file_path to open: %s", file_path)
         return MessageLogFile(file_path)

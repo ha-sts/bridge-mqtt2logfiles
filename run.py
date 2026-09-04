@@ -26,6 +26,8 @@ async def wrapper(args):
     flush_timer = MethodTickler(seconds = 15, corofunc = mlfm.flush)
     rotate_timer = MethodTickler(seconds = 3600, corofunc = mlfm.rotate_file)
 
+    # FIXME: Need the thing that grabs the message from MqttClient, formats it, and pushes it to the MessageLogFileManager
+
     # Create tasks for each worker
     tasks = []
     tasks.append(asyncio.create_task(mqttc.run()))
@@ -56,7 +58,7 @@ def main():
         default = os.getenv("HASTS_MQTT_SERVER_HOST", "localhost")
     )
     parser.add_argument(
-        "--message_file_dir",
+        "--message-file-dir",
         help = "Path to the directory into which the log files will be created.",
         default = os.getenv("HASTS_MESSAGE_FILE_DIR")
     )
