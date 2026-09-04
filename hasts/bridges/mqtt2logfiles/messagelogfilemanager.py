@@ -17,9 +17,9 @@ from .messagelogfile import MessageLogFile
 class MessageLogFileManager:
     def __init__(self, message_directory_path):
         self.logger = logging.getLogger(type(self).__name__)
-        self.logger.debug("Inputs - message_directory_path: %s", message_directory_path)
+        self.logger.debug("__init__ - message_directory_path: %s", message_directory_path)
         self.message_directory_path = pathlib.Path(message_directory_path)
-        self.message_file = self._open_file()
+        self._message_file = self._open_file()
 
     def _open_file(self):
         self.logger.debug("_open_file")
@@ -31,15 +31,15 @@ class MessageLogFileManager:
     async def rotate_file(self):
         self.logger.debug("rotate_file")
         # This should do an "atomic swap" or properly known as a tuple swap.
-        old_file, self.message_file = self.message_file, self._open_file()
+        old_file, self._message_file = self._message_file, self._open_file()
         await old_file.flush()
 
-    async def write_line(self, message):
+    async def write_message(self, message):
         self.logger.debug("write_message - message: %s", message)
-        await self.message_file.write_message(message)
+        await self._message_file.write_message(message)
 
     async def flush(self):
         self.logger.debug("flush")
         # FIXME: Is this where the rotation should be checked?
-        await self.message_file.flush()
+        await self._message_file.flush()
 

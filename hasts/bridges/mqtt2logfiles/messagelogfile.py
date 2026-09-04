@@ -15,18 +15,18 @@ class MessageLogFile:
         self.logger = logging.getLogger(type(self).__name__)
         self.logger.debug("__init__ - message_file_path: %s", message_file_path)
         self.message_file_path = message_file_path
-        self.queue = asyncio.Queue()
+        self._queue = asyncio.Queue()
 
     async def write_message(self, message):
         self.logger.debug("write_message - message: %s", message)
-        await self.queue.put(str(message))
+        await self._queue.put(str(message))
 
     async def flush(self):
         # FIXME: Handle exceptions from file handling here
         self.logger.debug("flush")
         async with aiofiles.open(self.message_file_path, 'a') as message_file:
-            while not self.queue.empty():
-                message = await self.queue.get()
+            while not self._queue.empty():
+                message = await self._queue.get()
                 await message_file.write("{}\n".format(message))
 
     def __del__(self):

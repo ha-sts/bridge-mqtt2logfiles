@@ -13,7 +13,7 @@ import aiomqtt
 class MqttClient:
     def __init__(self, host = "localhost", port = 1883, user = None, password = None):
         self.logger = logging.getLogger(type(self).__name__)
-        self.logger.debug("Inputs - host: %s, port: %s, user: %s, password: %s", host, port, user, password)
+        self.logger.debug("__init__ - host: %s, port: %s, user: %s, password: %s", host, port, user, password)
         self.host = host
         self.port = int(port)
         self.user = user

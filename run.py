@@ -3,34 +3,48 @@
 ### IMPORTS ###
 import argparse
 import asyncio
+import json
 import logging
 import os
 import sys
 
 from hasts.bridges.utils import MethodTickler
 from hasts.bridges.clients import MqttClient
-from hasts.bridges.mqtt2logfiles import MessageLogFileManager
+from hasts.bridges.mqtt2logfiles import MessageHandler, MessageLogFileManager
 
 ### GLOBALS ###
 
 ### FUNCTIONS ###
+async def message_pumper():
+    # FIXME: A message comes in from the MqttClient
+    # FIXME: Make sure the message is a dictionary, then json.dumps it
+    # FIXME: Call the write_message method on the MessageLogFileManager
+    #        How does the MessageLogFileManager get in here?
+    #        Should this be a coroutine in the manager?
+    pass
+
 async def wrapper(args):
     logging.debug("Starting wrapper with args: %s", args)
+
     mqttc = MqttClient(
         host=args.mqtt_host,
         port=args.mqtt_port,
         user=args.username,
         password=args.password
     )
+
     mlfm = MessageLogFileManager(args.message_file_dir)
     flush_timer = MethodTickler(seconds = 15, corofunc = mlfm.flush)
     rotate_timer = MethodTickler(seconds = 3600, corofunc = mlfm.rotate_file)
+
+    mh = MessageHandler(mqttc, mlfm)
 
     # FIXME: Need the thing that grabs the message from MqttClient, formats it, and pushes it to the MessageLogFileManager
 
     # Create tasks for each worker
     tasks = []
     tasks.append(asyncio.create_task(mqttc.run()))
+    tasks.append(asyncio.create_task(mh.register_coroutines()))
     tasks.append(asyncio.create_task(flush_timer.run()))
     tasks.append(asyncio.create_task(rotate_timer.run()))
     await asyncio.gather(*tasks)
